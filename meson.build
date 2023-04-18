@@ -10,6 +10,18 @@ cflags = cc.get_supported_arguments([
     '-Werror=format-security'
 ])
 
+# Find dgpc. This should never be an installed library
+libdgpc_proj = subproject('libdgpc')
+libdgpc_dep = libdgpc_proj.get_variable('libdgpc_dep')
+log_macros_tmpl = libdgpc_proj.get_variable('log_macros_tmpl')
+
+# Find libusrio
+libusrio_dep = dependency('libusrio', required : false)
+if not libusrio_dep.found()
+    libusrio_proj = subproject('libusrio')
+    libusrio_dep = libusrio_proj.get_variable('libusrio_dep')
+endif
+
 inc = include_directories('include')
 
 subdir('include')

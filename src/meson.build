@@ -1,8 +1,10 @@
 libebogroll_sources = [
-    'bogroll.c',
+    'ebogroll.c',
+    'gdew042c37.c'
 ]
 
 libebogroll = shared_library('ebogroll',
                            libebogroll_sources,
                            include_directories: inc,
-                           install : true)
+                           install : true,
+                           dependencies : [ libusrio_dep, libdgpc_dep])

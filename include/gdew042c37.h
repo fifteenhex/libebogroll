@@ -6,6 +6,8 @@
 #ifndef GDEW042C37_H_
 #define GDEW042C37_H_
 
+#include <stdint.h>
+
 #define GDEW042C37_WIDTH				400
 #define GDEW042C37_HEIGHT				300
 #define GDEW042C37_PLANESIZE				((GDEW042C37_WIDTH * GDEW042C37_HEIGHT) / 8)
@@ -24,5 +26,21 @@
 #define GDEW042C37_CMD_DATA_START_TRANSMISSION2		0x13
 #define GDEW042C37_CMD_VCOM_AND_DATA_INTERVAL_SETTING	0x50
 #define GDEW042C37_CMD_RESOLUTION_SETTING		0x61
+
+extern const struct epaper_driver gdew042c37;
+
+struct gdew042c37_data {
+	int reset_gpio;
+	int busy_gpio;
+	int dc_gpio;
+
+	const struct gpio_controller *gpio_controller;
+	const struct spi_controller *spi_controller;
+};
+
+int gdew042c37_new(struct gdew042c37_data *display_data,
+	const struct gpio_controller *gpio_controller,
+	const struct spi_controller *spi_controller,
+	int reset_gpio, int busy_gpio, int dc_gpio);
 
 #endif
