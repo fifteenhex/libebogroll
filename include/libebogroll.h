@@ -16,6 +16,7 @@ struct epaper_driver {
 };
 
 int ebogroll_reset(const struct epaper_driver *driver, const void *display_data);
+int ebogroll_power_up(const struct epaper_driver *driver, const void *display_data);
 int ebogroll_send_plane_data(const struct epaper_driver *driver,
 		const void *display_data, unsigned plane, const uint8_t *plane_data);
 int ebogroll_refresh(const struct epaper_driver *driver, const void *display_data);

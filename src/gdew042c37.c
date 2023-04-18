@@ -59,6 +59,41 @@ static int gdew042c37_reset(const void *display_data)
 
 static int gdew042c37_power_up(const void *display_data)
 {
+	const struct gdew042c37_data *gdew042c37_display_data = display_data;
+
+	{
+		const uint8_t booster_soft_start[] = { GDEW042C37_CMD_BOOSTER_SOFT_START, 0x17, 0x17, 0x17 };
+		gdew042c37_send_command(gdew042c37_display_data, booster_soft_start, sizeof(booster_soft_start));
+	}
+
+	{
+		const uint8_t power_setting[] = { GDEW042C37_CMD_POWER_SETTING, 0x03, 0x00, 0x2b, 0x2b, 0x09 };
+		gdew042c37_send_command(gdew042c37_display_data, power_setting, sizeof(power_setting));
+	};
+
+	{
+		const uint8_t power_on[] = { GDEW042C37_CMD_POWER_ON };
+		gdew042c37_send_command(gdew042c37_display_data, power_on, sizeof(power_on));
+	};
+
+	/* wait for ready */
+	gdew042c37_wait_not_busy(gdew042c37_display_data);
+
+	{
+		const uint8_t panel_setting[] = { GDEW042C37_CMD_PANEL_SETTING, 0x0f};
+		gdew042c37_send_command(gdew042c37_display_data, panel_setting, sizeof(panel_setting));
+	};
+
+	{
+		const uint8_t resolution_setting[] = { GDEW042C37_CMD_RESOLUTION_SETTING, 0x01, 0x90, 0x01, 0x2c };
+		gdew042c37_send_command(gdew042c37_display_data, resolution_setting, sizeof(resolution_setting));
+	};
+
+	{
+		const uint8_t vcom_datainterval[] = { GDEW042C37_CMD_VCOM_AND_DATA_INTERVAL_SETTING, 0x77 };
+		gdew042c37_send_command(gdew042c37_display_data, vcom_datainterval, sizeof(vcom_datainterval));
+	};
+
 	return 0;
 }
 
