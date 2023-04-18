@@ -8,6 +8,14 @@
 #include "libebogroll.h"
 #include "gdew042c37.h"
 
+static int gdew042c37_wait_not_busy(struct gdew042c37_data *display_data)
+{
+	while(gpio_controller_get_value(display_data->gpio_controller, display_data->busy_gpio) == 0){
+	}
+
+	return 0;
+}
+
 static int gdew042c37_send_command(struct gdew042c37_data *display_data, uint8_t *command, size_t len)
 {
 	struct spi_controller *spi_controller = display_data->spi_controller;
@@ -58,8 +66,21 @@ static int gdew042c37_send_plane_data(const void *display_data, unsigned plane, 
 	return 0;
 }
 
+static int gdew042c37_refresh(const void *display_data)
+{
+	struct gdew042c37_data *gdew042c37_display_data = display_data;
+	const uint8_t display_refresh[] = { GDEW042C37_CMD_DISPLAY_REFRESH };
+
+	gdew042c37_send_command(gdew042c37_display_data, display_refresh, sizeof(display_refresh));
+	gdew042c37_wait_not_busy(gdew042c37_display_data);
+
+	return 0;
+}
+
+
 const struct epaper_driver gdew042c37 = {
 	.send_plane_data = gdew042c37_send_plane_data,
+	.refresh = gdew042c37_refresh,
 };
 
 int gdew042c37_new(struct gdew042c37_data *display_data,
