@@ -24,3 +24,11 @@ int ebogroll_refresh(const struct epaper_driver *driver, const void *display_dat
 	return driver->refresh(display_data);
 }
 
+int ebogroll_power_down(const struct epaper_driver *driver, const void *display_data)
+{
+	if (!driver->power_down)
+		return -1;
+
+	return driver->power_down(display_data);
+}
+

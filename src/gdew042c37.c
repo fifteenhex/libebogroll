@@ -40,6 +40,11 @@ static int gdew042c37_send_data(struct gdew042c37_data *display_data, uint8_t *d
 	return ret;
 }
 
+static int gdew042c37_power_up(const void *display_data)
+{
+	return 0;
+}
+
 static int gdew042c37_send_plane_data(const void *display_data, unsigned plane, const uint8_t *plane_data)
 {
 	struct gdew042c37_data *gdew042c37_display_data = display_data;
@@ -77,10 +82,27 @@ static int gdew042c37_refresh(const void *display_data)
 	return 0;
 }
 
+static int gdew042c37_power_down(const void *display_data)
+{
+	struct gdew042c37_data *gdew042c37_display_data = display_data;
+
+	const uint8_t power_off[] = { GDEW042C37_CMD_POWER_OFF };
+	gdew042c37_send_command(gdew042c37_display_data, power_off, sizeof(power_off));
+
+	// vcom and interval setting?
+
+	const uint8_t deep_sleep[] = { GDEW042C37_CMD_DEEP_SLEEP, 0xa5 };
+	gdew042c37_send_command(gdew042c37_display_data, deep_sleep, sizeof(deep_sleep));
+
+	return 0;
+}
+
 
 const struct epaper_driver gdew042c37 = {
+	.power_up = gdew042c37_power_up,
 	.send_plane_data = gdew042c37_send_plane_data,
 	.refresh = gdew042c37_refresh,
+	.power_down = gdew042c37_power_down,
 };
 
 int gdew042c37_new(struct gdew042c37_data *display_data,
