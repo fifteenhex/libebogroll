@@ -8,7 +8,7 @@
 #include "libebogroll.h"
 #include "gdew042c37.h"
 
-static int gdew042c37_wait_not_busy(struct gdew042c37_data *display_data)
+static int gdew042c37_wait_not_busy(const struct gdew042c37_data *display_data)
 {
 	while(gpio_controller_get_value(display_data->gpio_controller, display_data->busy_gpio) == 0){
 	}
@@ -16,9 +16,9 @@ static int gdew042c37_wait_not_busy(struct gdew042c37_data *display_data)
 	return 0;
 }
 
-static int gdew042c37_send_command(struct gdew042c37_data *display_data, uint8_t *command, size_t len)
+static int gdew042c37_send_command(const struct gdew042c37_data *display_data, const uint8_t *command, size_t len)
 {
-	struct spi_controller *spi_controller = display_data->spi_controller;
+	const struct spi_controller *spi_controller = display_data->spi_controller;
 
 	gpio_controller_set_value(display_data->gpio_controller, display_data->dc_gpio, 0);
 	spi_controller_cs_assert(spi_controller);
@@ -28,9 +28,9 @@ static int gdew042c37_send_command(struct gdew042c37_data *display_data, uint8_t
 	return ret;
 }
 
-static int gdew042c37_send_data(struct gdew042c37_data *display_data, uint8_t *data, size_t len)
+static int gdew042c37_send_data(const struct gdew042c37_data *display_data, const uint8_t *data, size_t len)
 {
-	struct spi_controller *spi_controller = display_data->spi_controller;
+	const struct spi_controller *spi_controller = display_data->spi_controller;
 
 	gpio_controller_set_value(display_data->gpio_controller, display_data->dc_gpio, 1);
 	spi_controller_cs_assert(spi_controller);
@@ -40,6 +40,23 @@ static int gdew042c37_send_data(struct gdew042c37_data *display_data, uint8_t *d
 	return ret;
 }
 
+static int gdew042c37_reset(const void *display_data)
+{
+	const struct gdew042c37_data *gdew042c37_display_data = display_data;
+	const struct gpio_controller *gpio_controller = gdew042c37_display_data->gpio_controller;
+	int reset_gpio = gdew042c37_display_data->reset_gpio;
+
+	for (int i = 0; i < 3; i++) {
+		/* apply reset and set default value for DC */
+		gpio_controller_set_value(gpio_controller, reset_gpio, 0);
+		usleep(100);
+		/* release reset */
+		gpio_controller_set_value(gpio_controller, reset_gpio, 1);
+	}
+
+	return 0;
+}
+
 static int gdew042c37_power_up(const void *display_data)
 {
 	return 0;
@@ -47,7 +64,7 @@ static int gdew042c37_power_up(const void *display_data)
 
 static int gdew042c37_send_plane_data(const void *display_data, unsigned plane, const uint8_t *plane_data)
 {
-	struct gdew042c37_data *gdew042c37_display_data = display_data;
+	const struct gdew042c37_data *gdew042c37_display_data = display_data;
 
 	switch (plane) {
 	case 0:
@@ -73,7 +90,7 @@ static int gdew042c37_send_plane_data(const void *display_data, unsigned plane, 
 
 static int gdew042c37_refresh(const void *display_data)
 {
-	struct gdew042c37_data *gdew042c37_display_data = display_data;
+	const struct gdew042c37_data *gdew042c37_display_data = display_data;
 	const uint8_t display_refresh[] = { GDEW042C37_CMD_DISPLAY_REFRESH };
 
 	gdew042c37_send_command(gdew042c37_display_data, display_refresh, sizeof(display_refresh));
@@ -84,7 +101,7 @@ static int gdew042c37_refresh(const void *display_data)
 
 static int gdew042c37_power_down(const void *display_data)
 {
-	struct gdew042c37_data *gdew042c37_display_data = display_data;
+	const struct gdew042c37_data *gdew042c37_display_data = display_data;
 
 	const uint8_t power_off[] = { GDEW042C37_CMD_POWER_OFF };
 	gdew042c37_send_command(gdew042c37_display_data, power_off, sizeof(power_off));
@@ -99,6 +116,7 @@ static int gdew042c37_power_down(const void *display_data)
 
 
 const struct epaper_driver gdew042c37 = {
+	.reset = gdew042c37_reset,
 	.power_up = gdew042c37_power_up,
 	.send_plane_data = gdew042c37_send_plane_data,
 	.refresh = gdew042c37_refresh,

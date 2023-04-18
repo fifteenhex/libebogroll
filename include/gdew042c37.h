@@ -8,6 +8,9 @@
 
 #include <stdint.h>
 
+#include <gpio_controller.h>
+#include <spi_controller.h>
+
 #define GDEW042C37_WIDTH				400
 #define GDEW042C37_HEIGHT				300
 #define GDEW042C37_PLANESIZE				((GDEW042C37_WIDTH * GDEW042C37_HEIGHT) / 8)
