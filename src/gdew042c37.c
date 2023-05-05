@@ -60,38 +60,53 @@ static int gdew042c37_reset(const void *display_data)
 static int gdew042c37_power_up(const void *display_data)
 {
 	const struct gdew042c37_data *gdew042c37_display_data = display_data;
+	int ret;
 
 	{
 		const uint8_t booster_soft_start[] = { GDEW042C37_CMD_BOOSTER_SOFT_START, 0x17, 0x17, 0x17 };
-		gdew042c37_send_command(gdew042c37_display_data, booster_soft_start, sizeof(booster_soft_start));
+		ret = gdew042c37_send_command(gdew042c37_display_data, booster_soft_start, sizeof(booster_soft_start));
+		if (ret)
+			return ret;
 	}
 
 	{
 		const uint8_t power_setting[] = { GDEW042C37_CMD_POWER_SETTING, 0x03, 0x00, 0x2b, 0x2b, 0x09 };
-		gdew042c37_send_command(gdew042c37_display_data, power_setting, sizeof(power_setting));
+		ret = gdew042c37_send_command(gdew042c37_display_data, power_setting, sizeof(power_setting));
+		if (ret)
+			return ret;
 	};
 
 	{
 		const uint8_t power_on[] = { GDEW042C37_CMD_POWER_ON };
-		gdew042c37_send_command(gdew042c37_display_data, power_on, sizeof(power_on));
+		ret = gdew042c37_send_command(gdew042c37_display_data, power_on, sizeof(power_on));
+		if (ret)
+			return ret;
 	};
 
 	/* wait for ready */
-	gdew042c37_wait_not_busy(gdew042c37_display_data);
+	ret = gdew042c37_wait_not_busy(gdew042c37_display_data);
+	if (ret)
+		return ret;
 
 	{
 		const uint8_t panel_setting[] = { GDEW042C37_CMD_PANEL_SETTING, 0x0f};
-		gdew042c37_send_command(gdew042c37_display_data, panel_setting, sizeof(panel_setting));
+		ret = gdew042c37_send_command(gdew042c37_display_data, panel_setting, sizeof(panel_setting));
+		if (ret)
+			return ret;
 	};
 
 	{
 		const uint8_t resolution_setting[] = { GDEW042C37_CMD_RESOLUTION_SETTING, 0x01, 0x90, 0x01, 0x2c };
-		gdew042c37_send_command(gdew042c37_display_data, resolution_setting, sizeof(resolution_setting));
+		ret = gdew042c37_send_command(gdew042c37_display_data, resolution_setting, sizeof(resolution_setting));
+		if (ret)
+			return ret;
 	};
 
 	{
 		const uint8_t vcom_datainterval[] = { GDEW042C37_CMD_VCOM_AND_DATA_INTERVAL_SETTING, 0x77 };
-		gdew042c37_send_command(gdew042c37_display_data, vcom_datainterval, sizeof(vcom_datainterval));
+		ret = gdew042c37_send_command(gdew042c37_display_data, vcom_datainterval, sizeof(vcom_datainterval));
+		if (ret)
+			return ret;
 	};
 
 	return 0;
@@ -100,25 +115,32 @@ static int gdew042c37_power_up(const void *display_data)
 static int gdew042c37_send_plane_data(const void *display_data, unsigned plane, const uint8_t *plane_data)
 {
 	const struct gdew042c37_data *gdew042c37_display_data = display_data;
+	int ret;
 
 	switch (plane) {
 	case 0:
 	{
 		const uint8_t start_bw_data[] = { GDEW042C37_CMD_DATA_START_TRANSMISSION1 };
-		gdew042c37_send_command(gdew042c37_display_data, start_bw_data, sizeof(start_bw_data));
+		ret =gdew042c37_send_command(gdew042c37_display_data, start_bw_data, sizeof(start_bw_data));
+		if (ret)
+			return ret;
 	};
 		break;
 	case 1:
 	{
 		const uint8_t start_yellow_data[] = { GDEW042C37_CMD_DATA_START_TRANSMISSION2 };
-		gdew042c37_send_command(gdew042c37_display_data, start_yellow_data, sizeof(start_yellow_data));
+		ret = gdew042c37_send_command(gdew042c37_display_data, start_yellow_data, sizeof(start_yellow_data));
+		if (ret)
+			return ret;
 	}
 		break;
 	default:
 		return -EINVAL;
 	}
 
-	gdew042c37_send_data(gdew042c37_display_data, plane_data, GDEW042C37_PLANESIZE);
+	ret = gdew042c37_send_data(gdew042c37_display_data, plane_data, GDEW042C37_PLANESIZE);
+	if (ret)
+		return ret;
 
 	return 0;
 }
@@ -127,9 +149,15 @@ static int gdew042c37_refresh(const void *display_data)
 {
 	const struct gdew042c37_data *gdew042c37_display_data = display_data;
 	const uint8_t display_refresh[] = { GDEW042C37_CMD_DISPLAY_REFRESH };
+	int ret;
 
-	gdew042c37_send_command(gdew042c37_display_data, display_refresh, sizeof(display_refresh));
-	gdew042c37_wait_not_busy(gdew042c37_display_data);
+	ret = gdew042c37_send_command(gdew042c37_display_data, display_refresh, sizeof(display_refresh));
+	if (ret)
+		return ret;
+
+	ret = gdew042c37_wait_not_busy(gdew042c37_display_data);
+	if (ret)
+		return ret;
 
 	return 0;
 }
@@ -137,14 +165,22 @@ static int gdew042c37_refresh(const void *display_data)
 static int gdew042c37_power_down(const void *display_data)
 {
 	const struct gdew042c37_data *gdew042c37_display_data = display_data;
+	int ret;
 
-	const uint8_t power_off[] = { GDEW042C37_CMD_POWER_OFF };
-	gdew042c37_send_command(gdew042c37_display_data, power_off, sizeof(power_off));
-
+	{
+		const uint8_t power_off[] = { GDEW042C37_CMD_POWER_OFF };
+		ret = gdew042c37_send_command(gdew042c37_display_data, power_off, sizeof(power_off));
+		if (ret)
+			return ret;
+	}
 	// vcom and interval setting?
 
-	const uint8_t deep_sleep[] = { GDEW042C37_CMD_DEEP_SLEEP, 0xa5 };
-	gdew042c37_send_command(gdew042c37_display_data, deep_sleep, sizeof(deep_sleep));
+	{
+		const uint8_t deep_sleep[] = { GDEW042C37_CMD_DEEP_SLEEP, 0xa5 };
+		ret = gdew042c37_send_command(gdew042c37_display_data, deep_sleep, sizeof(deep_sleep));
+		if (ret)
+			return ret;
+	}
 
 	return 0;
 }
