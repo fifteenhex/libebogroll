@@ -8,7 +8,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
       - name: Install deps
-        run: sudo apt-get install meson pkg-config
+        run: sudo apt-get install meson pkg-config libgpiod-dev
       - name: Fix subprojects
         run: |
          git clone https://github.com/fifteenhex/libdgpc.git
