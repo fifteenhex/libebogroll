@@ -22,12 +22,13 @@ static int gdew042c37_wait_not_busy(const struct gdew042c37_data *display_data)
 static int gdew042c37_send_command(const struct gdew042c37_data *display_data, const uint8_t *command, size_t len)
 {
 	const struct spi_controller *spi_controller = display_data->spi_controller;
+	void *spi_priv = display_data->spi_priv;
 
 	gpio_controller_set_value(display_data->gpio_controller,
 			display_data->gpio_priv, display_data->dc_gpio, 0);
-	spi_controller_cs_assert(spi_controller);
-	int ret = spi_controller_write(spi_controller, command, len, 0);
-	spi_controller_cs_release(spi_controller);
+	spi_controller_cs_assert(spi_controller, spi_priv);
+	int ret = spi_controller_write(spi_controller, command, len, 0, spi_priv);
+	spi_controller_cs_release(spi_controller, spi_priv);
 
 	return ret;
 }
@@ -35,12 +36,13 @@ static int gdew042c37_send_command(const struct gdew042c37_data *display_data, c
 static int gdew042c37_send_data(const struct gdew042c37_data *display_data, const uint8_t *data, size_t len)
 {
 	const struct spi_controller *spi_controller = display_data->spi_controller;
+	void *spi_priv = display_data->spi_priv;
 
 	gpio_controller_set_value(display_data->gpio_controller,
 			display_data->gpio_priv, display_data->dc_gpio, 1);
-	spi_controller_cs_assert(spi_controller);
-	int ret = spi_controller_write(spi_controller, data, len, 0);
-	spi_controller_cs_release(spi_controller);
+	spi_controller_cs_assert(spi_controller, spi_priv);
+	int ret = spi_controller_write(spi_controller, data, len, 0, spi_priv);
+	spi_controller_cs_release(spi_controller, spi_priv);
 
 	return ret;
 }
@@ -204,6 +206,7 @@ int gdew042c37_new(struct gdew042c37_data *display_data,
 	const struct gpio_controller *gpio_controller,
 	const void *gpio_priv,
 	const struct spi_controller *spi_controller,
+	const void *spi_priv,
 	int reset_gpio, int busy_gpio, int dc_gpio)
 {
 	assert(gpio_controller);
@@ -213,6 +216,7 @@ int gdew042c37_new(struct gdew042c37_data *display_data,
 	display_data->gpio_controller = gpio_controller;
 	display_data->gpio_priv = gpio_priv;
 	display_data->spi_controller = spi_controller;
+	display_data->spi_priv = spi_priv;
 	display_data->reset_gpio = reset_gpio;
 	display_data->busy_gpio = busy_gpio;
 	display_data->dc_gpio = dc_gpio;

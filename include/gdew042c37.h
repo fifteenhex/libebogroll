@@ -40,12 +40,14 @@ struct gdew042c37_data {
 	const struct gpio_controller *gpio_controller;
 	void *gpio_priv;
 	const struct spi_controller *spi_controller;
+	void *spi_priv;
 };
 
 int gdew042c37_new(struct gdew042c37_data *display_data,
 	const struct gpio_controller *gpio_controller,
 	const void *gpio_priv,
 	const struct spi_controller *spi_controller,
+	const void *spi_priv,
 	int reset_gpio, int busy_gpio, int dc_gpio);
 
 #endif
